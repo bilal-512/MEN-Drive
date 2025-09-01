@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"> <!-- Add/remove 'dark' to switch themes -->
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Upload Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.5.1/flowbite.min.css" rel="stylesheet" />
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.5.1/flowbite.min.js"></script>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <span class="ml-2 text-xl font-semibold">MEN Drive</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Dark Mode Toggle -->
+                    <button id="dark-toggle" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700">
+                        🌙
+                    </button>
+                    <a href="/logout"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold mb-6 text-center">Upload Files</h2>
+
+            <form action="/upload" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <div class="flex items-center justify-center w-full">
+                    <label for="dropzone-file" class="relative flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 dark:border-gray-600 border-dashed 
+                            rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6" id="dropzone-content">
+                            <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-300" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 
+                                    6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 
+                                    5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 
+                                    0L8 8m2-2 2 2" />
+                            </svg>
+                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-300">
+                                <span class="font-semibold">Click to upload</span> or drag and drop
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                Any file type (MAX. 10MB)
+                            </p>
+                        </div>
+                        <input id="dropzone-file" name="file" type="file"
+                            class="absolute w-full h-full opacity-0 cursor-pointer" required aria-label="File upload" />
+                    </label>
+                </div>
+
+                <!-- File Preview Section -->
+                <div id="file-preview" class="hidden mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <svg class="w-8 h-8 text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            <div>
+                                <p id="file-name" class="text-sm font-medium text-gray-900 dark:text-gray-100"></p>
+                                <p id="file-size" class="text-xs text-gray-500 dark:text-gray-300"></p>
+                            </div>
+                        </div>
+                        <button type="button" id="remove-file"
+                            class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-600 text-sm font-medium">Remove</button>
+                    </div>
+                </div>
+
+                <div class="flex justify-center space-x-4">
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
+                            transition-colors duration-200">
+                        Upload File
+                    </button>
+                    <a href="/files" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 
+                            transition-colors duration-200">
+                        View Uploaded Files
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+<script>
+    const input = document.getElementById('dropzone-file');
+    const dropzone = document.querySelector('label[for="dropzone-file"]');
+    const filePreview = document.getElementById('file-preview');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const removeButton = document.getElementById('remove-file');
+    const dropzoneContent = document.getElementById('dropzone-content');
+    const darkToggle = document.getElementById('dark-toggle');
+    const html = document.documentElement;
+
+    // === Helper: update toggle button icon ===
+    function updateToggleIcon() {
+        if (html.classList.contains('dark')) {
+            darkToggle.textContent = "☀️"; // Show sun in dark mode
+        } else {
+            darkToggle.textContent = "🌙"; // Show moon in light mode
+        }
+    }
+
+    // === Apply theme on load ===
+    function applyTheme() {
+        if (localStorage.theme === 'dark') {
+            html.classList.add('dark');
+        } else if (localStorage.theme === 'light') {
+            html.classList.remove('dark');
+        } else {
+            // Default: follow system preference
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                html.classList.add('dark');
+            } else {
+                html.classList.remove('dark');
+            }
+        }
+        updateToggleIcon();
+    }
+
+    // Run on page load
+    applyTheme();
+
+    // === Toggle dark mode on button click ===
+    darkToggle.addEventListener('click', () => {
+        if (html.classList.contains('dark')) {
+            html.classList.remove('dark');
+            localStorage.theme = 'light';
+        } else {
+            html.classList.add('dark');
+            localStorage.theme = 'dark';
+        }
+        updateToggleIcon();
+    });
+
+    // === File handling ===
+    function handleFile(file) {
+        if (file) {
+            filePreview.classList.remove('hidden');
+            fileName.textContent = file.name;
+            fileSize.textContent = `${(file.size / 1024).toFixed(2)} KB`;
+            dropzoneContent.classList.add('opacity-50');
+        } else {
+            filePreview.classList.add('hidden');
+            dropzoneContent.classList.remove('opacity-50');
+            input.value = '';
+        }
+    }
+
+    input.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+        }
+    });
+
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('border-blue-500');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('border-blue-500');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('border-blue-500');
+        if (e.dataTransfer.files.length > 0) {
+            input.files = e.dataTransfer.files;
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    removeButton.addEventListener('click', () => {
+        handleFile(null);
+    });
+
+    // === Auto-update if system theme changes (only if user never toggled) ===
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (!('theme' in localStorage)) {
+            applyTheme();
+        }
+    });
+</script>
+
+
+
+</body>
+</html>
