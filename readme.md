@@ -36,13 +36,6 @@ Built with the **MEN stack (MongoDB, Express.js, Node.js)**, the platform featur
    ```bash
    git clone https://github.com/your-username/men-drive.git
    cd men-drive
-
-
-
-
-
-
-
 2. Install dependencies:
 
    ```bash
